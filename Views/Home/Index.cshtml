@@ -1,0 +1,44 @@
+﻿@model s4h.Models.RomRoom
+
+@{
+    ViewData["Title"] = "S4H";
+    Layout = "_DevExtremeLayout";
+}
+
+<div class="left-content">
+    @(Html.DevExtreme().TreeView()
+        .ID("simple-treeview")
+        .DataSource(d => d.Mvc().LoadAction("GetItems"))
+        .DataSourceOptions(o => o.Map("mapData"))
+        .DataStructure(TreeViewDataStructure.Plain)
+        .KeyExpr("ID")
+        .DisplayExpr("Text")
+        .ExpandedExpr("Expanded")
+        .Width(300)
+        )
+</div>
+
+<div class="right-content">
+    @(Html.DevExtreme().DataGrid()
+        .ID("gridContainer")
+        .DataSource(d => d.Mvc().LoadAction("GetRooms"))
+        .KeyExpr("ID")
+        .Columns(c =>
+        {
+            c.Add().DataField("Id");
+            c.Add().DataField("Rosid");
+            c.Add().DataField("Phone");
+            c.Add().DataField("OrderOnScheduler");
+            c.Add().DataField("Name");
+        })
+        )
+</div>
+
+<script>
+    function mapData(item) {
+        if (item.Image) {
+            item.icon = item.Image;
+        }
+        return item;
+    }
+</script>
