@@ -12,8 +12,14 @@ namespace DevExtreme.NETCore.Demos.Models.SampleData
                 ID = "1",
                 Text = "Pokoje",
                 Expanded = false,
-                Image = "../../images/ProductsLarge/1.png",
+                Image = "filter",
             },
+            // new Menu {
+            //    ID = "2",
+            //    Text = "Inne",
+            //    Expanded = false,
+            //    Image = "group",
+            //},
         };
     }
 }

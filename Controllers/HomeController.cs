@@ -28,6 +28,17 @@ namespace s4h.Controllers
             return View();
         }
 
+        [HttpGet]
+        public object GetStandards(DataSourceLoadOptions loadOptions)
+        {
+            return DataSourceLoader.Load(hotelDbContext.RosRoomStandards, loadOptions);
+        }
+
+        [HttpGet]
+        public object GetLocs(DataSourceLoadOptions loadOptions)
+        {
+            return DataSourceLoader.Load(hotelDbContext.LocLocals, loadOptions);
+        }
 
         [HttpGet]
         public object GetRooms(DataSourceLoadOptions loadOptions)

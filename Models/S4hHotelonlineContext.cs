@@ -16,6 +16,9 @@ public partial class S4hHotelonlineContext : DbContext
     }
 
     public virtual DbSet<RomRoom> RomRooms { get; set; }
+    public virtual DbSet<RosRoomStandards> RosRoomStandards { get; set; }
+    public virtual DbSet<LocLocals> LocLocals { get; set; }
+
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 
@@ -43,6 +46,16 @@ public partial class S4hHotelonlineContext : DbContext
                 .IsRowVersion()
                 .IsConcurrencyToken();
             entity.Property(e => e.Shortcut).HasMaxLength(20);
+        });
+
+        modelBuilder.Entity<LocLocals>(entity =>
+        {
+            entity.ToTable("LOC_Locals");
+        });
+
+        modelBuilder.Entity<RosRoomStandards>(entity =>
+        {
+            entity.ToTable("ROS_RoomsStandards");
         });
 
         OnModelCreatingPartial(modelBuilder);

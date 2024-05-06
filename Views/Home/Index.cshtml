@@ -1,6 +1,4 @@
-﻿@model s4h.Models.RomRoom
-
-@{
+﻿@{
     ViewData["Title"] = "S4H";
     Layout = "_DevExtremeLayout";
 }
@@ -14,33 +12,90 @@
         .KeyExpr("ID")
         .DisplayExpr("Text")
         .ExpandedExpr("Expanded")
-        .Width(300)
         )
 </div>
 
+
 <div class="right-content">
-    @(Html.DevExtreme().DataGrid()
-        .ID("gridContainer")
-        .ShowBorders(true)
-        .DataSource(d => d.Mvc().LoadAction("GetRooms"))
-        .DataSourceOptions(o => o.Paginate(true).PageSize(20))
-        .RemoteOperations(true)
-        .KeyExpr("ID")
-        .Columns(c =>
-        {
-            c.Add().DataField("Id");
-            c.Add().DataField("Rosid");
-            c.Add().DataField("Phone");
-            c.Add().DataField("OrderOnScheduler");
-            c.Add().DataField("Name");
-        })
+    @(
+        Html.DevExtreme().DataGrid<s4h.Models.RomRoom>()
+                .ID("gridContainer")
+                .ShowBorders(true)
+                .DataSource(d => d.Mvc().LoadAction("GetRooms"))
+                .DataSourceOptions(o => o.Paginate(true).PageSize(20))
+                .RemoteOperations(true)
+
+                .Editing(e => e.Mode(GridEditMode.Popup)
+                    .AllowUpdating(true)
+                    .AllowAdding(true)
+                    .AllowDeleting(true)
+                    .Popup(p => p
+                        .Title("Informacje")
+                        .ShowTitle(true)
+                        .Width(700)
+                        .Height(525)
+                )
+                .Form(f => f.Items(items =>
+                    {
+                        items.AddGroup()
+                .ColCount(2)
+                .ColSpan(2)
+                .Items(groupItems =>
+                {
+                    groupItems.AddSimpleFor(m => m.Id).Editor(e => e.TextBox().Disabled(true));
+                
+                    groupItems.AddSimpleFor(m => m.Rosid)
+                        .Editor(e => e.SelectBox()
+                        .DisplayExpr("Name")
+                        .Label("Wybierz Standard")
+                        .LabelMode(EditorLabelMode.Floating)
+                        .DataSource(d => d.Mvc().LoadAction("GetStandards").Key("ID"))
+                        .Value(1));
+
+                    groupItems.AddSimpleFor(m => m.Locid)
+                        .Editor(e => e.SelectBox()
+                        .DisplayExpr("Name")
+                        .Label("Wybierz lokalizacje")
+                        .LabelMode(EditorLabelMode.Floating)
+                        .DataSource(d => d.Mvc().LoadAction("GetLocs").Key("ID"))
+                        .Value(1));
+
+
+                        groupItems.AddSimpleFor(m => m.Phone).Editor(e => e.TextBox().Disabled(true));
+                        groupItems.AddSimpleFor(m => m.LockNumber).Editor(e => e.TextBox().Disabled(true));
+                        groupItems.AddSimpleFor(m => m.FloorNumber).Editor(e => e.TextBox().Disabled(true));
+                        groupItems.AddSimpleFor(m => m.HaveBathroom).Editor(e => e.TextBox().Disabled(true));
+                        groupItems.AddSimpleFor(m => m.ForPeopleWithDisabilities).Editor(e => e.TextBox().Disabled(true));
+
+                        groupItems.AddSimpleFor(m => m.OrderOnScheduler).Editor(e => e.TextBox().Disabled(true));
+                        groupItems.AddSimpleFor(m => m.Color).Editor(e => e.TextBox().Disabled(true));
+                        groupItems.AddSimpleFor(m => m.IsLocked).Editor(e => e.TextBox().Disabled(true));
+                        groupItems.AddSimpleFor(m => m.RowVersion).Editor(e => e.TextBox().Disabled(true));
+                        groupItems.AddSimpleFor(m => m.Number).Editor(e => e.TextBox().Disabled(true));
+                        groupItems.AddSimpleFor(m => m.Name).Editor(e => e.TextBox().Disabled(true));
+                        groupItems.AddSimpleFor(m => m.Shortcut).Editor(e => e.TextBox().Disabled(true));
+                        groupItems.AddSimpleFor(m => m.Description).Editor(e => e.TextBox().Disabled(true));
+                     
+                        groupItems.AddSimpleFor(m => m.DetailDescription).Editor(e => e.TextBox().Disabled(true)); });
+                }))
+
+            )
+            .Columns(columns =>
+            {
+                columns.AddFor(m => m.Id);
+                columns.AddFor(m => m.Rosid);
+                columns.AddFor(m => m.Name);
+                columns.AddFor(m => m.Description);
+                columns.AddFor(m => m.LockNumber).Visible(false);
+            })
         )
 </div>
+
 
 <script>
     function mapData(item) {
         if (item.Image) {
-            item.icon = item.Image;
+            item.icon = item.Image         
         }
         return item;
     }
