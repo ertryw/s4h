@@ -32,7 +32,7 @@ namespace s4h.Controllers
         [HttpGet]
         public object GetRooms(DataSourceLoadOptions loadOptions)
         {
-            var rooms = hotelDbContext.RomRooms.ToList();
+            var rooms = hotelDbContext.RomRooms.ToList(); // add pagination
             return DataSourceLoader.Load(rooms, loadOptions);
         }
 
