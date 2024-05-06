@@ -139,3 +139,4 @@ C:\Users\ramze\source\repos\s4h\bin\Debug\net8.0\DevExtreme.AspNet.Core.dll
 C:\Users\ramze\source\repos\s4h\bin\Debug\net8.0\DevExtreme.AspNet.Data.dll
 C:\Users\ramze\source\repos\s4h\bin\Debug\net8.0\Newtonsoft.Json.dll
 C:\Users\ramze\source\repos\s4h\obj\Debug\net8.0\s4h.MvcApplicationPartsAssemblyInfo.cs
+C:\Users\ramze\source\repos\s4h\obj\Debug\net8.0\s4h.sourcelink.json

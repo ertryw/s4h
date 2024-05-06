@@ -21,7 +21,10 @@
 <div class="right-content">
     @(Html.DevExtreme().DataGrid()
         .ID("gridContainer")
+        .ShowBorders(true)
         .DataSource(d => d.Mvc().LoadAction("GetRooms"))
+        .DataSourceOptions(o => o.Paginate(true).PageSize(20))
+        .RemoteOperations(true)
         .KeyExpr("ID")
         .Columns(c =>
         {
