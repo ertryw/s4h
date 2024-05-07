@@ -6,8 +6,7 @@
 <div class="left-content">
     @(Html.DevExtreme().TreeView()
         .ID("simple-treeview")
-        .DataSource(d => d.Mvc().LoadAction("GetItems"))
-        .DataSourceOptions(o => o.Map("mapData"))
+        .DataSource(d => d.Mvc().LoadAction("GetItems"))   
         .DataStructure(TreeViewDataStructure.Plain)
         .KeyExpr("ID")
         .DisplayExpr("Text")
@@ -18,73 +17,27 @@
 
 <div class="right-content">
     @(
-        Html.DevExtreme().DataGrid<s4h.Models.RomRoom>()
-            .ID("gridContainer")
-            .ShowBorders(true)
-            .DataSource(d => d.Mvc().LoadAction("GetRooms"))
-            .DataSourceOptions(o => o.Paginate(true).PageSize(20))
-            .RemoteOperations(true)
-
-            .Editing(e => e.Mode(GridEditMode.Popup)
-                .AllowUpdating(true)
-                .AllowAdding(true)
-                .AllowDeleting(true)
-                .Popup(p => p
-                    .Title("Informacje")
-                    .ShowTitle(true)
-                    .Width(1000)
-                    .Height(525)
-            )
-            .Form(f => f.Items(items =>
-                {
-                    items.AddGroup()
-                        .ColCount(3)
-                        .ColSpan(2)
-                        .Items(groupItems =>
-                        {
-                            groupItems.AddSimpleFor(m => m.Id).Editor(e => e.TextBox().Disabled(true));
-
-                            groupItems.AddSimpleFor(m => m.Rosid).Label(l => l.Text("Standard"))
-                                .Editor(e => e.SelectBox()
-                                .DataSource(d => d.Mvc().LoadAction("GetStandards").Key("Id"))
-                                .DisplayExpr("Name")
-                                .ValueExpr("Id"));
-                                //VALUE
-
-                            groupItems.AddSimpleFor(m => m.Locid).Label(l => l.Text("Lokalizacja"))
-                                .Editor(e => e.SelectBox()
-                                .DisplayExpr("Name")
-                                .DataSource(d => d.Mvc().LoadAction("GetLocs").Key("ID"))
-                                .Value(1));
-       
-                         });
-
-
-                        items.AddGroup()
-                        .ColCount(3)
-                        .ColSpan(2)
-                        .Items(groupItems =>
-                        {
-
-                            groupItems.AddSimpleFor(m => m.Phone).Editor(e => e.TextBox().Disabled(true));
-                            groupItems.AddSimpleFor(m => m.LockNumber).Editor(e => e.TextBox().Disabled(true));
-                            groupItems.AddSimpleFor(m => m.FloorNumber).Editor(e => e.TextBox().Disabled(true));
-                            groupItems.AddSimpleFor(m => m.HaveBathroom).Editor(e => e.TextBox().Disabled(true));
-                            //groupItems.AddSimpleFor(m => m.ForPeopleWithDisabilities).Editor(e => e.TextBox().Disabled(true));
-
-                            groupItems.AddSimpleFor(m => m.OrderOnScheduler).Editor(e => e.TextBox().Disabled(true));
-                            groupItems.AddSimpleFor(m => m.Color).Editor(e => e.TextBox().Disabled(true));
-                            groupItems.AddSimpleFor(m => m.IsLocked).Editor(e => e.TextBox().Disabled(true));
-                            groupItems.AddSimpleFor(m => m.RowVersion).Editor(e => e.TextBox().Disabled(true));
-                            groupItems.AddSimpleFor(m => m.Number).Editor(e => e.TextBox().Disabled(true));
-                            groupItems.AddSimpleFor(m => m.Name).Editor(e => e.TextBox().Disabled(true));
-                            groupItems.AddSimpleFor(m => m.Shortcut).Editor(e => e.TextBox().Disabled(true));
-                            groupItems.AddSimpleFor(m => m.Description).Editor(e => e.TextBox().Disabled(true));
-                     
-                            groupItems.AddSimpleFor(m => m.DetailDescription).Editor(e => e.TextBox().Disabled(true)); });
-
-                        }))
-
+            Html.DevExtreme().DataGrid<s4h.Models.RomRoom>()
+                .ID("gridContainer")
+                .ShowBorders(true)
+                .DataSource(d => d.Mvc().LoadAction("GetRooms"))
+                .DataSourceOptions(o => o.Paginate(true).PageSize(20))
+                .RemoteOperations(true)
+                .OnEditingStart("editingStart")
+                .OnSaved("OnSaved")
+                .Editing(e => e.Mode(GridEditMode.Popup)
+                    .AllowUpdating(true)
+                    .AllowAdding(true)
+                    .AllowDeleting(true)
+                    .Popup(p => p
+                        .Title("Informacje")
+                        .ShowTitle(true)
+                        .Width(1000)
+                        .Height(525)
+                        .OnShowing("formPopup")
+                        .ContentTemplate("<div> Wczytywanie ... </div>")
+                        .OnHiding("OnClosing")
+                )
             )
             .Columns(columns =>
             {
@@ -93,18 +46,77 @@
                 columns.AddFor(m => m.Ros.Name).Caption("Standard");
                 columns.AddFor(m => m.Name).Caption("Nazwa");
                 columns.AddFor(m => m.Description).Caption("Opis");
-                columns.AddFor(m => m.LockNumber).Visible(false);
-                columns.AddFor(m => m.Rosid).Visible(false);
             })
         )
 </div>
 
 
 <script>
-    function mapData(item) {
-        if (item.Image) {
-            item.icon = item.Image         
-        }
-        return item;
+
+  
+    var editedId = 0;
+    var standards = null;
+    var locations = null;
+    var edited = null;
+
+    $.getJSON("https://localhost:7244/home/getlocationsandstandards", { id: editedId }, function (result) {
+        standards = result[0];
+        locations = result[1];
+    });
+
+    function OnSaved() {
+        $.ajax({
+            url: 'https://localhost:7244/home/setroom',
+            type: 'PUT',
+            data: edited,
+            success: function (result) {
+                // Do something with the result
+            }
+        });
     }
+
+    function OnClosing() {
+        $(".dx-popup-content").empty();
+    }
+
+    function editingStart(e) {
+        editedId = e.data.Id;
+    }
+
+    function formPopup(component) {
+        console.log("popup")
+
+        $.getJSON("https://localhost:7244/home/getroom", {id:editedId}, function (result) {
+
+            let room = result;
+            edited = room
+
+            $(".dx-popup-content").dxForm({
+                formData: room,
+                colCount: 3,
+                onFieldDataChanged: function (e) {
+                    edited[e.dataField] = e.value;
+                },
+                items: ["Id", 
+                {
+                    dataField: "Rosid", editorType: "dxSelectBox", editorOptions: {
+                        dataSource: standards,
+                        valueExpr: "Id",
+                        displayExpr: "Name",
+                    }
+                },
+                {
+                    dataField: "Locid", editorType: "dxSelectBox", editorOptions: {
+                    dataSource: locations,
+                    valueExpr: "Id",
+                    displayExpr: "Name",
+                    }
+                }]
+            });
+        });
+    }
+
+
+
+
 </script>

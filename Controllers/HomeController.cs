@@ -41,6 +41,41 @@ namespace s4h.Controllers
             return DataSourceLoader.Load(hotelDbContext.LocLocals, loadOptions);
         }
 
+
+        [HttpGet]
+        public object GetLocationsAndStandards()
+        {
+            var roomStandards = hotelDbContext.RosRoomStandards.ToList();
+            var locations = hotelDbContext.LocLocals.ToList();
+
+            return Json(new object[] { roomStandards, locations });
+        }
+
+        [HttpGet]
+        public object GetRoom(int id)
+        {
+            var room = hotelDbContext.RomRooms.Where(x => x.Id == id).FirstOrDefault();
+
+            return Json(room);
+        }
+
+        [HttpPut]
+        public object SetRoom(RomRoom room)
+        {
+            using (var context = new S4hHotelonlineContext())
+            {
+                var entity = context.RomRooms.FirstOrDefault(item => item.Id == room.Id);
+
+                if (entity != null)
+                {
+                    // update
+                    context.SaveChanges();
+                }
+            }
+
+            return Ok();
+        }
+
         [HttpGet]
         public object GetRooms(DataSourceLoadOptions loadOptions)
         {
