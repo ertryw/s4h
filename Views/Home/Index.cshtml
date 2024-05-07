@@ -17,24 +17,35 @@
 
 <div class="right-content">
     @(
-            Html.DevExtreme().DataGrid<s4h.Models.RomRoom>()
-                .ID("gridContainer")
-                .ShowBorders(true)
-                .DataSource(d => d.Mvc().LoadAction("GetRooms"))
-                .DataSourceOptions(o => o.Paginate(true).PageSize(20))
-                .RemoteOperations(true)
-                .OnEditingStart("editingStart")
-                .OnSaved("OnSaved")
-                .Editing(e => e.Mode(GridEditMode.Popup)
-                    .AllowUpdating(true)
-                    .AllowAdding(true)
-                    .AllowDeleting(true)
-                    .Popup(p => p
-                        .Title("Informacje")
-                        .ShowTitle(true)
-                        .Width(1000)
-                        .Height(525)
-                        .OnShowing("formPopup")
+        Html.DevExtreme().DataGrid<s4h.Models.RomRoom>()
+                    .ID("gridContainer")
+                    .ShowBorders(true)
+                    .DataSource(d => d.Mvc().LoadAction("GetRooms").InsertAction("InsertRoom").Key("Id"))
+                    .DataSourceOptions(o => o.Paginate(true).PageSize(20))
+                    .RemoteOperations(true)
+                    .OnEditingStart("editingStart")
+                    .OnInitNewRow("onInsert")
+                    .OnSaved("OnSaved")
+                    .Editing(e => e.Mode(GridEditMode.Popup)
+                        .AllowUpdating(true)
+                        .AllowAdding(true)
+                        .AllowDeleting(true)
+                        .Popup(p => p
+                            .Title("Informacje")
+                            .ShowTitle(true)
+                            .Width(1000)
+                            .Height(525)
+                            .ToolbarItems(items =>
+                            {
+                                    items.Add()
+                                    .Toolbar(Toolbar.Bottom)
+                                    .Location(ToolbarItemLocation.After)
+                                    .Widget(w => w
+                                    .Button()
+                                    .Icon("menu"))
+                                    .Location(ToolbarItemLocation.After);
+                            })
+                            .OnShowing("formPopup")
                         .ContentTemplate("<div> Wczytywanie ... </div>")
                         .OnHiding("OnClosing")
                 )
@@ -53,7 +64,6 @@
 
 <script>
 
-  
     var editedId = 0;
     var standards = null;
     var locations = null;
@@ -77,10 +87,25 @@
 
     function OnClosing() {
         $(".dx-popup-content").empty();
+        editedId = 0;
+    }
+
+    function onInsert(e) {
+        // $.ajax({
+        //     url: 'https://localhost:7244/home/insertroom',
+        //     type: 'POST',
+        //     success: function (result) {
+        //         // Do something with the result
+        //     }
+        // });
+
+        edited = {};
+        console.log("on insert");
     }
 
     function editingStart(e) {
         editedId = e.data.Id;
+        console.log("editing start");
     }
 
     function formPopup(component) {
@@ -91,27 +116,79 @@
             let room = result;
             edited = room
 
+
+            // $(".dx-toolbar-before").append("<div id='saveButton'></div>");
+
+            // $("#dx-toolbar-before").dxButton({
+            //     text: "Zapisz",
+            //     validationGroup: 'roomValidation',
+            //     useSubmitBehavior: true,
+            //     onClick: function () {
+            //         alert("The Button was clicked");
+            //     }
+            // });
+
             $(".dx-popup-content").dxForm({
                 formData: room,
                 colCount: 3,
+                validationGroup: 'roomValidation',
                 onFieldDataChanged: function (e) {
                     edited[e.dataField] = e.value;
                 },
-                items: ["Id", 
-                {
-                    dataField: "Rosid", editorType: "dxSelectBox", editorOptions: {
-                        dataSource: standards,
-                        valueExpr: "Id",
-                        displayExpr: "Name",
+                items: [
+                {   
+                        dataField: "Id", editorType: "dxTextBox", editorOptions: {
+                        disabled: true,
                     }
                 },
                 {
-                    dataField: "Locid", editorType: "dxSelectBox", editorOptions: {
+                        colSpan: 2,
+                        validationRules: [{
+                            type: "required",
+                            message: "Standard musi być wybrany",
+                        }],
+                        label: {text:"Standard"}, dataField: "Rosid", editorType: "dxSelectBox", editorOptions: {
+                        dataSource: standards,
+                        valueExpr: "Id",
+                        displayExpr: "Name",
+                       
+                    }
+                },
+                {
+                    label: { text: "Lokalizacja" }, dataField: "Locid", editorType: "dxSelectBox", editorOptions: {
                     dataSource: locations,
                     valueExpr: "Id",
                     displayExpr: "Name",
                     }
-                }]
+                },
+                {
+                    dataField: "Phone", editorType: "dxTextBox", editorOptions: { }
+                },
+                {
+                    dataField: "LockNumber", editorType: "dxTextBox", editorOptions: {}
+                },
+                {
+                    dataField: "FloorNumber", editorType: "dxNumberBox", editorOptions: {}
+                },
+                {
+                     dataField: "HaveBathroom", editorType: "dxCheckBox", editorOptions: {}
+                },
+                {
+                     dataField: "ForPeopleWithDisabilities", editorType: "dxCheckBox", editorOptions: {}
+                },
+                {
+                    dataField: "Color", editorType: "dxTextBox", editorOptions: {}
+                },
+                {
+                    dataField: "Name", editorType: "dxTextBox", editorOptions: {}
+                },
+                {
+                     dataField: "Shortcut", editorType: "dxTextBox", editorOptions: {}
+                },
+                {
+                     dataField: "Description", editorType: "dxTextBox", editorOptions: {}
+                }
+                ]
             });
         });
     }

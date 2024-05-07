@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 namespace s4h.Models;
 
+
 public partial class RomRoom
 {
     public int Id { get; set; }

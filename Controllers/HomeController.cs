@@ -59,6 +59,19 @@ namespace s4h.Controllers
             return Json(room);
         }
 
+        [HttpPost]
+        public object InsertRoom(RomRoom room)
+        {
+            //using (var context = new S4hHotelonlineContext())
+            //{
+            //    var author = new RomRoom() { Name = "Pokój nr. 0", Rosid = 1, Locid = 1};
+            //    context.Add<RomRoom>(author);
+            //    int updated = context.SaveChanges();
+            //}
+
+            return Ok();
+        }
+
         [HttpPut]
         public object SetRoom(RomRoom room)
         {
