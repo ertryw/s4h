@@ -45,7 +45,11 @@ public partial class S4hHotelonlineContext : DbContext
             entity.Property(e => e.RowVersion)
                 .IsRowVersion()
                 .IsConcurrencyToken();
+
             entity.Property(e => e.Shortcut).HasMaxLength(20);
+
+            entity.HasOne(e => e.Loc);
+            entity.HasOne(e => e.Ros);
         });
 
         modelBuilder.Entity<LocLocals>(entity =>

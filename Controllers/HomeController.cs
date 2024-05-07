@@ -2,6 +2,7 @@ using DevExtreme.AspNet.Data;
 using DevExtreme.AspNet.Mvc;
 using DevExtreme.NETCore.Demos.Models.SampleData;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using s4h.Models;
 using System.Diagnostics;
 
@@ -43,7 +44,10 @@ namespace s4h.Controllers
         [HttpGet]
         public object GetRooms(DataSourceLoadOptions loadOptions)
         {
-            return DataSourceLoader.Load(hotelDbContext.RomRooms, loadOptions);
+            return DataSourceLoader.Load(hotelDbContext.RomRooms
+                .Include(x => x.Ros)
+                .Include(x => x.Loc)
+                ,loadOptions);
         }
 
         [HttpGet]

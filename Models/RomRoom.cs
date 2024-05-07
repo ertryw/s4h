@@ -8,7 +8,7 @@ public partial class RomRoom
     public int Id { get; set; }
 
     public int Rosid { get; set; }
-
+    public RosRoomStandards? Ros { get; }
     public string? Phone { get; set; }
 
     public string? LockNumber { get; set; }
@@ -36,6 +36,6 @@ public partial class RomRoom
     public string? Description { get; set; }
 
     public short Locid { get; set; }
-
+    public LocLocals? Loc { get; }
     public string? DetailDescription { get; set; }
 }

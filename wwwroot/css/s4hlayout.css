@@ -17,9 +17,6 @@
 }
 
 
-.container, .left-content {
-    min-height: 530px;
-}
 
 .left-content {
     display: inline-block;

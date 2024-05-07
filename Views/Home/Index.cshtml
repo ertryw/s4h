@@ -19,73 +19,80 @@
 <div class="right-content">
     @(
         Html.DevExtreme().DataGrid<s4h.Models.RomRoom>()
-                .ID("gridContainer")
-                .ShowBorders(true)
-                .DataSource(d => d.Mvc().LoadAction("GetRooms"))
-                .DataSourceOptions(o => o.Paginate(true).PageSize(20))
-                .RemoteOperations(true)
+            .ID("gridContainer")
+            .ShowBorders(true)
+            .DataSource(d => d.Mvc().LoadAction("GetRooms"))
+            .DataSourceOptions(o => o.Paginate(true).PageSize(20))
+            .RemoteOperations(true)
 
-                .Editing(e => e.Mode(GridEditMode.Popup)
-                    .AllowUpdating(true)
-                    .AllowAdding(true)
-                    .AllowDeleting(true)
-                    .Popup(p => p
-                        .Title("Informacje")
-                        .ShowTitle(true)
-                        .Width(700)
-                        .Height(525)
-                )
-                .Form(f => f.Items(items =>
-                    {
-                        items.AddGroup()
-                .ColCount(2)
-                .ColSpan(2)
-                .Items(groupItems =>
+            .Editing(e => e.Mode(GridEditMode.Popup)
+                .AllowUpdating(true)
+                .AllowAdding(true)
+                .AllowDeleting(true)
+                .Popup(p => p
+                    .Title("Informacje")
+                    .ShowTitle(true)
+                    .Width(1000)
+                    .Height(525)
+            )
+            .Form(f => f.Items(items =>
                 {
-                    groupItems.AddSimpleFor(m => m.Id).Editor(e => e.TextBox().Disabled(true));
-                
-                    groupItems.AddSimpleFor(m => m.Rosid)
-                        .Editor(e => e.SelectBox()
-                        .DisplayExpr("Name")
-                        .Label("Wybierz Standard")
-                        .LabelMode(EditorLabelMode.Floating)
-                        .DataSource(d => d.Mvc().LoadAction("GetStandards").Key("ID"))
-                        .Value(1));
+                    items.AddGroup()
+                        .ColCount(3)
+                        .ColSpan(2)
+                        .Items(groupItems =>
+                        {
+                            groupItems.AddSimpleFor(m => m.Id).Editor(e => e.TextBox().Disabled(true));
 
-                    groupItems.AddSimpleFor(m => m.Locid)
-                        .Editor(e => e.SelectBox()
-                        .DisplayExpr("Name")
-                        .Label("Wybierz lokalizacje")
-                        .LabelMode(EditorLabelMode.Floating)
-                        .DataSource(d => d.Mvc().LoadAction("GetLocs").Key("ID"))
-                        .Value(1));
+                            groupItems.AddSimpleFor(m => m.Rosid).Label(l => l.Text("Standard"))
+                                .Editor(e => e.SelectBox()
+                                .DataSource(d => d.Mvc().LoadAction("GetStandards").Key("Id"))
+                                .DisplayExpr("Name")
+                                .ValueExpr("Id"));
+                                //VALUE
+
+                            groupItems.AddSimpleFor(m => m.Locid).Label(l => l.Text("Lokalizacja"))
+                                .Editor(e => e.SelectBox()
+                                .DisplayExpr("Name")
+                                .DataSource(d => d.Mvc().LoadAction("GetLocs").Key("ID"))
+                                .Value(1));
+       
+                         });
 
 
-                        groupItems.AddSimpleFor(m => m.Phone).Editor(e => e.TextBox().Disabled(true));
-                        groupItems.AddSimpleFor(m => m.LockNumber).Editor(e => e.TextBox().Disabled(true));
-                        groupItems.AddSimpleFor(m => m.FloorNumber).Editor(e => e.TextBox().Disabled(true));
-                        groupItems.AddSimpleFor(m => m.HaveBathroom).Editor(e => e.TextBox().Disabled(true));
-                        groupItems.AddSimpleFor(m => m.ForPeopleWithDisabilities).Editor(e => e.TextBox().Disabled(true));
+                        items.AddGroup()
+                        .ColCount(3)
+                        .ColSpan(2)
+                        .Items(groupItems =>
+                        {
 
-                        groupItems.AddSimpleFor(m => m.OrderOnScheduler).Editor(e => e.TextBox().Disabled(true));
-                        groupItems.AddSimpleFor(m => m.Color).Editor(e => e.TextBox().Disabled(true));
-                        groupItems.AddSimpleFor(m => m.IsLocked).Editor(e => e.TextBox().Disabled(true));
-                        groupItems.AddSimpleFor(m => m.RowVersion).Editor(e => e.TextBox().Disabled(true));
-                        groupItems.AddSimpleFor(m => m.Number).Editor(e => e.TextBox().Disabled(true));
-                        groupItems.AddSimpleFor(m => m.Name).Editor(e => e.TextBox().Disabled(true));
-                        groupItems.AddSimpleFor(m => m.Shortcut).Editor(e => e.TextBox().Disabled(true));
-                        groupItems.AddSimpleFor(m => m.Description).Editor(e => e.TextBox().Disabled(true));
+                            groupItems.AddSimpleFor(m => m.Phone).Editor(e => e.TextBox().Disabled(true));
+                            groupItems.AddSimpleFor(m => m.LockNumber).Editor(e => e.TextBox().Disabled(true));
+                            groupItems.AddSimpleFor(m => m.FloorNumber).Editor(e => e.TextBox().Disabled(true));
+                            groupItems.AddSimpleFor(m => m.HaveBathroom).Editor(e => e.TextBox().Disabled(true));
+                            //groupItems.AddSimpleFor(m => m.ForPeopleWithDisabilities).Editor(e => e.TextBox().Disabled(true));
+
+                            groupItems.AddSimpleFor(m => m.OrderOnScheduler).Editor(e => e.TextBox().Disabled(true));
+                            groupItems.AddSimpleFor(m => m.Color).Editor(e => e.TextBox().Disabled(true));
+                            groupItems.AddSimpleFor(m => m.IsLocked).Editor(e => e.TextBox().Disabled(true));
+                            groupItems.AddSimpleFor(m => m.RowVersion).Editor(e => e.TextBox().Disabled(true));
+                            groupItems.AddSimpleFor(m => m.Number).Editor(e => e.TextBox().Disabled(true));
+                            groupItems.AddSimpleFor(m => m.Name).Editor(e => e.TextBox().Disabled(true));
+                            groupItems.AddSimpleFor(m => m.Shortcut).Editor(e => e.TextBox().Disabled(true));
+                            groupItems.AddSimpleFor(m => m.Description).Editor(e => e.TextBox().Disabled(true));
                      
-                        groupItems.AddSimpleFor(m => m.DetailDescription).Editor(e => e.TextBox().Disabled(true)); });
-                }))
+                            groupItems.AddSimpleFor(m => m.DetailDescription).Editor(e => e.TextBox().Disabled(true)); });
+
+                        }))
 
             )
             .Columns(columns =>
             {
-                columns.AddFor(m => m.Id);
-                columns.AddFor(m => m.Rosid);
-                columns.AddFor(m => m.Name);
-                columns.AddFor(m => m.Description);
+                columns.AddFor(m => m.Id).Width(50);
+                columns.AddFor(m => m.Loc.Name).Caption("Lokalizacja").Width(100);
+                columns.AddFor(m => m.Ros.Name).Caption("Standard");
+                columns.AddFor(m => m.Name).Caption("Nazwa");
+                columns.AddFor(m => m.Description).Caption("Opis");
                 columns.AddFor(m => m.LockNumber).Visible(false);
             })
         )

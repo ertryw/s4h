@@ -1,4 +1,6 @@
-﻿namespace s4h.Models
+﻿using Microsoft.Extensions.Hosting;
+
+namespace s4h.Models
 {
     public class RosRoomStandards
     {
