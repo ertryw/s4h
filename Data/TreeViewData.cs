@@ -14,6 +14,7 @@ namespace DevExtreme.NETCore.Demos.Models.SampleData
                 Expanded = false,
                 Image = "filter",
             },
+            //},
             // new Menu {
             //    ID = "2",
             //    Text = "Inne",

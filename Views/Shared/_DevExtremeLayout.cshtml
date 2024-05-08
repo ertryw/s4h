@@ -61,16 +61,16 @@
     <link rel="stylesheet" href="/css/s4hlayout.css" type="text/css" />
 </head>
 
-<body style="">
+<body>
 
-   
-    <div class="header">
+    <div class="header pb-2 pt-2">
         @(Html.DevExtreme().Toolbar()
             .Items(items =>  {
                 items.Add()
                 .Widget(w => w
                 .Button()
-                .Icon("menu"))
+                .Icon("menu")
+                .OnClick("clickMenu"))
                 .Location(ToolbarItemLocation.Before);
 
                 items.Add()
@@ -80,7 +80,7 @@
         )
     </div>
 
-    <main class="container">
+    <main class="container" style="max-width:100%">
         @RenderBody()
     </main>
 </body>

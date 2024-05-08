@@ -53,34 +53,79 @@ namespace s4h.Controllers
         [HttpGet]
         public object GetRoom(int id)
         {
+            if (id == 0)
+                return Json(new RomRoom());
+
             var room = hotelDbContext.RomRooms.Where(x => x.Id == id).FirstOrDefault();
 
             return Json(room);
         }
 
-        [HttpPost]
-        public object InsertRoom(RomRoom room)
+        [HttpDelete]
+        public object DeleteRoom(int key)
         {
-            //using (var context = new S4hHotelonlineContext())
-            //{
-            //    var author = new RomRoom() { Name = "Pokój nr. 0", Rosid = 1, Locid = 1};
-            //    context.Add<RomRoom>(author);
-            //    int updated = context.SaveChanges();
-            //}
+            using (var context = new S4hHotelonlineContext())
+            {
+                var room = hotelDbContext.RomRooms.Where(x => x.Id == key).FirstOrDefault();
+                context.RomRooms.Remove(room);
+                context.SaveChanges();
+            }
+
+            return Ok();
+        }
+
+        [HttpPost]
+        public object InsertRoom(RomRoom newRoom)
+        {
+            using (var context = new S4hHotelonlineContext())
+            {
+                int higestNumber = context.RomRooms.Max(x => x.Number);
+                var room = new RomRoom() 
+                { 
+                    Name = newRoom.Name, 
+                    Rosid = newRoom.Rosid, 
+                    Locid = newRoom.Locid,
+                    Phone = newRoom.Phone,
+                    FloorNumber = newRoom.FloorNumber,
+                    HaveBathroom = newRoom.HaveBathroom,
+                    ForPeopleWithDisabilities = newRoom.ForPeopleWithDisabilities,
+                    Color = newRoom.Color,
+                    IsLocked = newRoom.IsLocked,
+                    Shortcut = newRoom.Shortcut,
+                    Description = newRoom.Description,
+                    Number = higestNumber + 1
+                };
+
+                context.Add<RomRoom>(room);
+                int updated = context.SaveChanges();
+            }
 
             return Ok();
         }
 
         [HttpPut]
-        public object SetRoom(RomRoom room)
+        public object SetRoom(RomRoom changedRoom)
         {
             using (var context = new S4hHotelonlineContext())
             {
-                var entity = context.RomRooms.FirstOrDefault(item => item.Id == room.Id);
+                var entity = context.RomRooms.FirstOrDefault(item => item.Id == changedRoom.Id);
 
                 if (entity != null)
                 {
                     // update
+                    entity.Name = changedRoom.Name;
+                    entity.Rosid = changedRoom.Rosid;
+                    entity.Locid = changedRoom.Locid;
+                    entity.Phone = changedRoom.Phone;
+                    entity.FloorNumber = changedRoom.FloorNumber;
+                    entity.HaveBathroom = changedRoom.HaveBathroom;
+                    entity.ForPeopleWithDisabilities = changedRoom.ForPeopleWithDisabilities;
+                    entity.Color = changedRoom.Color;
+                    entity.IsLocked = changedRoom.IsLocked;
+                    entity.Shortcut = changedRoom.Shortcut;
+                    entity.Description = changedRoom.Description;
+
+                    //context.Update(entity);
                     context.SaveChanges();
                 }
             }
@@ -94,7 +139,7 @@ namespace s4h.Controllers
             return DataSourceLoader.Load(hotelDbContext.RomRooms
                 .Include(x => x.Ros)
                 .Include(x => x.Loc)
-                ,loadOptions);
+                , loadOptions);
         }
 
         [HttpGet]
