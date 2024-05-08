@@ -80,7 +80,7 @@
     var edited = null;
     var formInstance = null;
 
-    $.getJSON("https://localhost:7244/home/getlocationsandstandards", { id: editedId }, function (result) {
+    $.getJSON("@Url.Action("getlocationsandstandards", "home")", { id: editedId }, function (result) {
         standards = result[0];
         locations = result[1];
     });
@@ -88,7 +88,7 @@
 
     function OnSaved() {
         $.ajax({
-            url: 'https://localhost:7244/home/setroom',
+            url: "@Url.Action("setroom", "home")",
             type: 'PUT',
             data: edited,
             success: function (result) {
@@ -109,7 +109,7 @@
 
         // if (validation.isValid) {
         //     $.ajax({
-        //         url: 'https://localhost:7244/home/insertroom',
+        //         url: '@Url.Action("insertroom", "home")',
         //         type: 'POST',
         //         data: edited,
         //         success: function (result) {
@@ -128,7 +128,7 @@
     function formPopup(component) {
         console.log("popup")
 
-        $.getJSON("https://localhost:7244/home/getroom", {id:editedId}, function (room) {
+        $.getJSON("@Url.Action("getroom", "home")", { id: editedId }, function (room) {
 
             edited = room ?? {};
 
