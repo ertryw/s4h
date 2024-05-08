@@ -104,10 +104,27 @@
     var formInstance = null;
     var gridInstance = null;
 
-    $.getJSON("@Url.Action("getlocationsandstandards", "home")", { id: editedId }, function (result) {
-        standards = result[0];
-        locations = result[1];
+    $.getJSON("@Url.Action("getlocals", "home")", { id: editedId }, function (result) {
+        locations = result;
     });
+
+
+    function getLocalStandards(localId) {
+
+        $.getJSON("@Url.Action("getstandards", "home")", { localId: localId }, function (result) {
+            standards = result;
+
+            formInstance.itemOption("standard", "dataSource", {
+                editorOptions: {
+                    dataSource: standards
+                }
+            });
+
+
+
+        });
+
+    }
 
     function onCellPrepared(e) {
           
@@ -132,10 +149,7 @@
             icon: "",
             text: "Dodaj pokój",
         })
-        console.log(buttonAdd);
     }
-
-
 
     function gridInit(e) {
         gridInstance = e.component;
@@ -207,11 +221,14 @@
 
                 onInitialized: function (e) {       
                     formInstance = e.component;
-                    console.log(formInstance);
                 },
 
                 onFieldDataChanged: function (e) {
                     edited[e.dataField] = e.value;
+             
+                    if (e.dataField == "Locid") { 
+                        getLocalStandards(e.value);
+                    }
                 },
 
                 items: [
@@ -220,23 +237,6 @@
                         visible: false,
                         dataField: "Id", editorType: "dxTextBox", editorOptions: {
                             disabled: true,
-                        }
-                    },
-                    {
-                        colSpan: 1,
-                        validationRules: [
-                            { type: "required" },
-                            {
-                                type: "range",
-                                min: "1",
-                                message: "Standard wymagany",
-                            }
-                        ],
-                        label: { text: "Standard" }, dataField: "Rosid", editorType: "dxSelectBox", editorOptions: {
-                            dataSource: standards,
-                            valueExpr: "Id",
-                            displayExpr: "Name",
-
                         }
                     },
                     {
@@ -254,6 +254,26 @@
                             displayExpr: "Name",
                         }
                     },
+                    {
+                        colSpan: 1,
+                        caption: "standard",
+                        name: "standard",
+                        validationRules: [
+                            { type: "required" },
+                            {
+                                type: "range",
+                                min: "1",
+                                message: "Standard wymagany",
+                            }
+                        ],
+                        label: { text: "Standard" }, dataField: "Rosid", editorType: "dxSelectBox", editorOptions: {
+                            dataSource: standards,
+                            valueExpr: "Id",
+                            displayExpr: "Name",
+
+                        }
+                    },
+                   
                     {
                         itemType: "empty"
                     },

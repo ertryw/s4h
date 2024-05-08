@@ -29,11 +29,6 @@ namespace s4h.Controllers
             return View();
         }
 
-        [HttpGet]
-        public object GetStandards(DataSourceLoadOptions loadOptions)
-        {
-            return DataSourceLoader.Load(hotelDbContext.RosRoomStandards, loadOptions);
-        }
 
         [HttpGet]
         public object GetLocs(DataSourceLoadOptions loadOptions)
@@ -41,7 +36,24 @@ namespace s4h.Controllers
             return DataSourceLoader.Load(hotelDbContext.LocLocals, loadOptions);
         }
 
+
         [HttpGet]
+        public object GetLocals()
+        {
+            var locals = hotelDbContext.LocLocals.ToList();
+            return Json(locals);
+        }
+
+        [HttpGet]
+        public object GetStandards(int localId)
+        {
+            var roomStandards = hotelDbContext.RosRoomStandards.Where(x => x.LOCID == localId).ToList();
+            return Json(roomStandards);
+        }
+
+
+        [HttpGet]
+        [Obsolete]
         public object GetLocationsAndStandards()
         {
             var roomStandards = hotelDbContext.RosRoomStandards.ToList();
