@@ -41,7 +41,6 @@ namespace s4h.Controllers
             return DataSourceLoader.Load(hotelDbContext.LocLocals, loadOptions);
         }
 
-
         [HttpGet]
         public object GetLocationsAndStandards()
         {

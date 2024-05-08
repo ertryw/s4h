@@ -24,7 +24,6 @@
                     .DataSourceOptions(o => o.Paginate(true).PageSize(20))
                     .RemoteOperations(true)
                     .OnEditingStart("editingStart")
-                    .OnInitNewRow("onInsert")
                     .OnSaved("OnSaved")
                     .Editing(e => e.Mode(GridEditMode.Popup)
                         .AllowUpdating(true)
@@ -32,22 +31,33 @@
                         .AllowDeleting(true)
                         .Popup(p => p
                             .Title("Informacje")
+                            .ID("editPopup")
                             .ShowTitle(true)
                             .Width(1000)
                             .Height(525)
                             .ToolbarItems(items =>
                             {
                                     items.Add()
-                                    .Toolbar(Toolbar.Bottom)
-                                    .Location(ToolbarItemLocation.After)
-                                    .Widget(w => w
-                                    .Button()
-                                    .Icon("menu"))
-                                    .Location(ToolbarItemLocation.After);
+                                        .Toolbar(Toolbar.Bottom)
+                                        .Widget(w => w
+                                        .Button()
+                                        .Text("Zapisz")
+                                        .ValidationGroup("roomValidation")
+                                        .UseSubmitBehavior(true)
+                                        .OnClick("OnSave"))
+                                        .Location(ToolbarItemLocation.After);
+
+                                    items.Add()
+                                        .Toolbar(Toolbar.Bottom)
+                                        .Widget(w => w
+                                        .Button()
+                                        .Text("Anuluj")
+                                        .OnClick("OnClosing"))
+                                        .Location(ToolbarItemLocation.After);
                             })
                             .OnShowing("formPopup")
-                        .ContentTemplate("<div> Wczytywanie ... </div>")
-                        .OnHiding("OnClosing")
+                            .ContentTemplate("<div> Wczytywanie ... </div>")
+                            .OnHiding("OnClosing")
                 )
             )
             .Columns(columns =>
@@ -68,11 +78,13 @@
     var standards = null;
     var locations = null;
     var edited = null;
+    var formInstance = null;
 
     $.getJSON("https://localhost:7244/home/getlocationsandstandards", { id: editedId }, function (result) {
         standards = result[0];
         locations = result[1];
     });
+
 
     function OnSaved() {
         $.ajax({
@@ -86,21 +98,26 @@
     }
 
     function OnClosing() {
+        $("#editPopup").dxPopup("hide");
         $(".dx-popup-content").empty();
         editedId = 0;
     }
 
-    function onInsert(e) {
-        // $.ajax({
-        //     url: 'https://localhost:7244/home/insertroom',
-        //     type: 'POST',
-        //     success: function (result) {
-        //         // Do something with the result
-        //     }
-        // });
+    function OnSave() {
+        //let validation = formInstance.validate();
+        let validation = $(".dx-popup-content").dxForm("validate");
 
-        edited = {};
-        console.log("on insert");
+        // if (validation.isValid) {
+        //     $.ajax({
+        //         url: 'https://localhost:7244/home/insertroom',
+        //         type: 'POST',
+        //         data: edited,
+        //         success: function (result) {
+        //             // Do something with the result
+        //         }
+        //     });
+        // }
+        //alert("The Save was clicked");
     }
 
     function editingStart(e) {
@@ -111,26 +128,14 @@
     function formPopup(component) {
         console.log("popup")
 
-        $.getJSON("https://localhost:7244/home/getroom", {id:editedId}, function (result) {
+        $.getJSON("https://localhost:7244/home/getroom", {id:editedId}, function (room) {
 
-            let room = result;
-            edited = room
-
-
-            // $(".dx-toolbar-before").append("<div id='saveButton'></div>");
-
-            // $("#dx-toolbar-before").dxButton({
-            //     text: "Zapisz",
-            //     validationGroup: 'roomValidation',
-            //     useSubmitBehavior: true,
-            //     onClick: function () {
-            //         alert("The Button was clicked");
-            //     }
-            // });
+            edited = room ?? {};
 
             $(".dx-popup-content").dxForm({
                 formData: room,
                 colCount: 3,
+                showValidationSummary: true,
                 validationGroup: 'roomValidation',
                 onFieldDataChanged: function (e) {
                     edited[e.dataField] = e.value;
@@ -145,7 +150,7 @@
                         colSpan: 2,
                         validationRules: [{
                             type: "required",
-                            message: "Standard musi być wybrany",
+                            message: "Standard wymagany",
                         }],
                         label: {text:"Standard"}, dataField: "Rosid", editorType: "dxSelectBox", editorOptions: {
                         dataSource: standards,
@@ -155,6 +160,10 @@
                     }
                 },
                 {
+                    validationRules: [{
+                        type: "required",
+                        message: "Lokalizacja wymagana",
+                    }],
                     label: { text: "Lokalizacja" }, dataField: "Locid", editorType: "dxSelectBox", editorOptions: {
                     dataSource: locations,
                     valueExpr: "Id",
@@ -190,6 +199,7 @@
                 }
                 ]
             });
+
         });
     }
 
