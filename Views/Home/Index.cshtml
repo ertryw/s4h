@@ -19,17 +19,12 @@
                                 .ID("gridContainer")
                                 .ShowBorders(true)
                                 .DataSource(d => d.Mvc().DeleteAction("DeleteRoom").LoadAction("GetRooms").Key("Id"))
-                                // .DataSourceOptions(o => o.Paginate(true).PageSize(20))
+                                .DataSourceOptions(o => o.Paginate(true).PageSize(20))
                                 .RemoteOperations(true)
                                 .OnEditingStart("editingStart")
                                 .OnInitialized("gridInit")
                                 .OnContentReady("contentReady")
                                 .ShowRowLines(true)
-
-                                .LoadPanel(loadPanel => loadPanel.Enabled(false))
-                                .Scrolling(scrolling => scrolling.Mode(GridScrollingMode.Infinite))
-                                .Sorting(sorting => sorting.Mode(GridSortingMode.None))
-
                                 .Editing(e => e.Mode(GridEditMode.Popup)
                                     .AllowUpdating(true)
                                     .AllowAdding(true)
