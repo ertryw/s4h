@@ -11,75 +11,73 @@
         .Position(DrawerPosition.Left)
         .Height("100vh")
         .RevealMode(DrawerRevealMode.Slide)
-        //.CloseOnOutsideClick(true)
         .Content(
-            @<text>
+        @<text>  
+            <div class="content px-4" style="height:100%">
+                @(
+                    Html.DevExtreme().DataGrid<s4h.Models.RomRoom>()
+                                .ID("gridContainer")
+                                .ShowBorders(true)
+                                .DataSource(d => d.Mvc().DeleteAction("DeleteRoom").LoadAction("GetRooms").Key("Id"))
+                                // .DataSourceOptions(o => o.Paginate(true).PageSize(20))
+                                .RemoteOperations(true)
+                                .OnEditingStart("editingStart")
+                                .OnInitialized("gridInit")
+                                .OnContentReady("contentReady")
+                                .ShowRowLines(true)
 
-       
-<div class="content px-4">
-    @(
-        Html.DevExtreme().DataGrid<s4h.Models.RomRoom>()
-                    .ID("gridContainer")
-                    .ShowBorders(true)
-                    .DataSource(d => d.Mvc().DeleteAction("DeleteRoom").LoadAction("GetRooms").Key("Id"))
-                    .DataSourceOptions(o => o.Paginate(true).PageSize(20))
-                    .RemoteOperations(true)
-                    .OnEditingStart("editingStart")
-                    .OnInitialized("gridInit")
-                    .OnContentReady("contentReady")
-                    .ShowRowLines(true)
-                    .OnCellPrepared("onCellPrepared")
+                                .LoadPanel(loadPanel => loadPanel.Enabled(false))
+                                .Scrolling(scrolling => scrolling.Mode(GridScrollingMode.Infinite))
+                                .Sorting(sorting => sorting.Mode(GridSortingMode.None))
 
-                    .Editing(e => e.Mode(GridEditMode.Popup)
-                        .AllowUpdating(true)
-                        .AllowAdding(true)
-                        .AllowDeleting(true)
-                        .Texts(t => t.ConfirmDeleteMessage("Czy napewno chcesz usnąć ten rekord?"))
-                        //.ConfirmDelete(false)
-                        .Popup(p => p
-                            .Title("Informacje")
-                            .ID("editPopup")
-                            .ShowTitle(true)
-                            .Width(1000)
-                            .Height(525)
-                            .ToolbarItems(items =>
-                            {
-                                    items.Add()
-                                        .Toolbar(Toolbar.Bottom)
-                                        .Widget(w => w
-                                        .Button()
-                                        .Text("Zapisz")
-                                        .ValidationGroup("roomValidation")
-                                        .UseSubmitBehavior(true)
-                                        .OnClick("OnSave"))
-                                        .Location(ToolbarItemLocation.After);
+                                .Editing(e => e.Mode(GridEditMode.Popup)
+                                    .AllowUpdating(true)
+                                    .AllowAdding(true)
+                                    .AllowDeleting(true)
+                                    .Texts(t => t.ConfirmDeleteMessage("Czy napewno chcesz usnąć ten rekord?"))
+                                    .Popup(p => p
+                                        .Title("Informacje")
+                                        .ID("editPopup")
+                                        .ShowTitle(true)
+                                        .Width(800)
+                                        .Height(400)
+                                        .ToolbarItems(items =>
+                                        {
+                                                items.Add()
+                                                    .Toolbar(Toolbar.Bottom)
+                                                    .Widget(w => w
+                                                    .Button()
+                                                    .Text("Zapisz")
+                                                    .ValidationGroup("roomValidation")
+                                                    .UseSubmitBehavior(true)
+                                                    .OnClick("OnSave"))
+                                                    .Location(ToolbarItemLocation.After);
 
-                                    items.Add()
-                                        .Toolbar(Toolbar.Bottom)
-                                        .Widget(w => w
-                                        .Button()
-                                        .Text("Anuluj")
-                                        .OnClick("OnClosing"))
-                                        .Location(ToolbarItemLocation.After);
-                            })
-                            .OnShowing("formPopup")
-                            .ContentTemplate("<div> Wczytywanie ... </div>")
-                            .OnHiding("OnClosing")
-                )
-            )
-            .Columns(columns =>
-            {
-                columns.AddFor(m => m.Id).Width(50);
-                columns.AddFor(m => m.Loc.Name).Caption("Lokalizacja").Width(100);
-                columns.AddFor(m => m.Ros.Name).Caption("Standard");
-                columns.AddFor(m => m.Name).Caption("Nazwa");
-                columns.AddFor(m => m.Description).Caption("Opis");
-            })
-        )
-</div>
-
-
+                                                items.Add()
+                                                    .Toolbar(Toolbar.Bottom)
+                                                    .Widget(w => w
+                                                    .Button()
+                                                    .Text("Anuluj")
+                                                    .OnClick("OnClosing"))
+                                                    .Location(ToolbarItemLocation.After);
+                                        })
+                                        .OnShowing("formPopup")
+                                        .ContentTemplate("<div> Wczytywanie ... </div>")
+                                        .OnHiding("OnClosing")
+                            )
+                        )
+                        .Columns(columns =>
+                        {
+                            columns.AddFor(m => m.Id).Width(50);
+                            columns.AddFor(m => m.Loc.Name).Caption("Lokalizacja").Width(100);
+                            columns.AddFor(m => m.Ros.Name).Caption("Standard");
+                            columns.AddFor(m => m.Name).Caption("Nazwa");
+                            columns.AddFor(m => m.Description).Caption("Opis");
+                        })
+                    )
+            </div>
         </text>)
+
         .Template(@<text>
         <div style="width: 200px;">
             @(Html.DevExtreme().TreeView()
@@ -98,7 +96,6 @@
 <script>
 
     var editedId = 0;
-    var standards = null;
     var locations = null;
     var edited = null;
     var formInstance = null;
@@ -112,33 +109,18 @@
     function getLocalStandards(localId) {
 
         $.getJSON("@Url.Action("getstandards", "home")", { localId: localId }, function (result) {
-            standards = result;
 
-            formInstance.itemOption("standard", "dataSource", {
+            console.log("disabled false");
+            formInstance.itemOption("standard", {
                 editorOptions: {
-                    dataSource: standards
+                    dataSource: result,
+                    disabled: false
                 }
             });
-
-
-
         });
 
     }
 
-    function onCellPrepared(e) {
-          
-        $links = e.cellElement.find(".dx-link");
-
-        //$links.text("");
-
-        // $links.filter(".dx-link-edit").dxButton({
-        //     icon: "edit",
-        // });
-        // $links.filter(".dx-link-delete").dxButton({
-        //     icon: "trash",
-        // });
-    }
 
     function clickMenu() {
         $("#drawer").dxDrawer("toggle");
@@ -157,7 +139,7 @@
 
     function OnClosing(e) {    
         $("#editPopup").dxPopup("hide");
-        $(".dx-popup-content").empty();
+
         editedId = 0;
     }
 
@@ -209,9 +191,13 @@
     function formPopup(component) {
         console.log("popup")
 
+
         $.getJSON("@Url.Action("getroom", "home")", { id: editedId }, function (room) {
 
             edited = room;
+
+            if (editedId > 0)
+                getLocalStandards(edited.Locid);
 
             $(".dx-popup-content").dxForm({
                 formData: room,
@@ -226,7 +212,7 @@
                 onFieldDataChanged: function (e) {
                     edited[e.dataField] = e.value;
              
-                    if (e.dataField == "Locid") { 
+                    if (e.dataField == "Locid" && e.value > 0) { 
                         getLocalStandards(e.value);
                     }
                 },
@@ -241,21 +227,24 @@
                     },
                     {
                         validationRules: [
-                            { type: "required" },
+                            { 
+                                type: "required" 
+                            },
                             {
                                 type: "range",
                                 min: "1",
                                 message: "Lokalizacja wymagana",
                             }
                         ],
-                        label: { text: "Lokalizacja" }, dataField: "Locid", editorType: "dxSelectBox", editorOptions: {
+                        label: { text: "Lokalizacja" }, dataField: "Locid", editorType: "dxSelectBox",
+                        editorOptions: {
                             dataSource: locations,
                             valueExpr: "Id",
                             displayExpr: "Name",
                         }
                     },
                     {
-                        colSpan: 1,
+                        colSpan: 2,
                         caption: "standard",
                         name: "standard",
                         validationRules: [
@@ -266,17 +255,15 @@
                                 message: "Standard wymagany",
                             }
                         ],
-                        label: { text: "Standard" }, dataField: "Rosid", editorType: "dxSelectBox", editorOptions: {
-                            dataSource: standards,
+                        label: { text: "Standard" }, dataField: "Rosid", editorType: "dxSelectBox",
+                        editorOptions: {
+                            dataSource: {},
                             valueExpr: "Id",
                             displayExpr: "Name",
-
+                            disabled: true
                         }
                     },
                    
-                    {
-                        itemType: "empty"
-                    },
                     {
                         validationRules: [{
                             type: "required",

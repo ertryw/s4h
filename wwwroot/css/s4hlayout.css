@@ -1,4 +1,12 @@
-﻿.dx-datagrid-header-panel {
+﻿#gridContainer {
+    height: 92vh;
+}
+
+body {
+    overflow: hidden;
+}
+
+.dx-datagrid-header-panel {
     height: 36px !important;
     margin: 5px 0px 6px 0px;
 }
@@ -32,11 +40,3 @@
 .drawer {
     height: 100%;
 }
-
-/*.right-content {
-    position: absolute;
-    right: 0;
-    left: 220px;
-    top: 0;
-    height: 100%;
-}*/
