@@ -1,11 +1,21 @@
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
 using s4h.Models;
+using s4h.Repositories;
+using s4h.Services;
+using s4h.Validators;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews().AddJsonOptions(options => options.JsonSerializerOptions.PropertyNamingPolicy = null);
 builder.Services.AddDbContext<S4hHotelonlineContext>(e => e.UseSqlServer(builder.Configuration.GetConnectionString("S4H")));
+builder.Services.AddScoped<IRoomRepository, RoomRepositiory>();
+builder.Services.AddScoped<ILocalsService, LocalsService>();
+builder.Services.AddFluentValidationAutoValidation()
+    .AddFluentValidationClientsideAdapters()
+    .AddValidatorsFromAssemblyContaining<RomRoomValidator>();
 
 var app = builder.Build();
 

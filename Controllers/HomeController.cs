@@ -4,6 +4,8 @@ using DevExtreme.NETCore.Demos.Models.SampleData;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using s4h.Models;
+using s4h.Repositories;
+using s4h.Services;
 using System.Diagnostics;
 
 namespace s4h.Controllers
@@ -11,12 +13,14 @@ namespace s4h.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-        private readonly S4hHotelonlineContext hotelDbContext;
+        private IRoomRepository roomRepository;
+        private ILocalsService localsService;
 
-        public HomeController(ILogger<HomeController> logger, S4hHotelonlineContext hotelDbContext)
+        public HomeController(ILogger<HomeController> logger, IRoomRepository roomRepository, ILocalsService localsService)
         {
             _logger = logger;
-            this.hotelDbContext = hotelDbContext;
+            this.roomRepository = roomRepository;
+            this.localsService = localsService;
         }
 
         public IActionResult Index()
@@ -29,141 +33,71 @@ namespace s4h.Controllers
             return View();
         }
 
-
-        [HttpGet]
-        public object GetLocs(DataSourceLoadOptions loadOptions)
-        {
-            return DataSourceLoader.Load(hotelDbContext.LocLocals, loadOptions);
-        }
-
-
-        [HttpGet]
-        public object GetLocals()
-        {
-            var locals = hotelDbContext.LocLocals.ToList();
-            return Json(locals);
-        }
-
-        [HttpGet]
-        public object GetStandards(int localId)
-        {
-            var roomStandards = hotelDbContext.RosRoomStandards.Where(x => x.LOCID == localId).ToList();
-            return Json(roomStandards);
-        }
-
-
-        [HttpGet]
-        [Obsolete]
-        public object GetLocationsAndStandards()
-        {
-            var roomStandards = hotelDbContext.RosRoomStandards.ToList();
-            var locations = hotelDbContext.LocLocals.ToList();
-
-            return Json(new object[] { roomStandards, locations });
-        }
-
-        [HttpGet]
-        public object GetRoom(int id)
-        {
-            if (id == 0)
-                return Json(new RomRoom());
-
-            var room = hotelDbContext.RomRooms.Where(x => x.Id == id).FirstOrDefault();
-
-            return Json(room);
-        }
-
-        [HttpDelete]
-        public object DeleteRoom(int key)
-        {
-            using (var context = new S4hHotelonlineContext())
-            {
-                var room = hotelDbContext.RomRooms.Where(x => x.Id == key).FirstOrDefault();
-                context.RomRooms.Remove(room);
-                context.SaveChanges();
-            }
-
-            return Ok();
-        }
-
-        [HttpPost]
-        public object InsertRoom(RomRoom newRoom)
-        {
-            using (var context = new S4hHotelonlineContext())
-            {
-                int higestNumber = context.RomRooms.Max(x => x.Number);
-                var room = new RomRoom() 
-                { 
-                    Name = newRoom.Name, 
-                    Rosid = newRoom.Rosid, 
-                    Locid = newRoom.Locid,
-                    Phone = newRoom.Phone,
-                    FloorNumber = newRoom.FloorNumber,
-                    HaveBathroom = newRoom.HaveBathroom,
-                    ForPeopleWithDisabilities = newRoom.ForPeopleWithDisabilities,
-                    Color = newRoom.Color,
-                    IsLocked = newRoom.IsLocked,
-                    Shortcut = newRoom.Shortcut,
-                    Description = newRoom.Description,
-                    Number = higestNumber + 1
-                };
-
-                context.Add<RomRoom>(room);
-                int updated = context.SaveChanges();
-            }
-
-            return Ok();
-        }
-
-        [HttpPut]
-        public object SetRoom(RomRoom changedRoom)
-        {
-            using (var context = new S4hHotelonlineContext())
-            {
-                var entity = context.RomRooms.FirstOrDefault(item => item.Id == changedRoom.Id);
-
-                if (entity != null)
-                {
-                    // update
-                    entity.Name = changedRoom.Name;
-                    entity.Rosid = changedRoom.Rosid;
-                    entity.Locid = changedRoom.Locid;
-                    entity.Phone = changedRoom.Phone;
-                    entity.FloorNumber = changedRoom.FloorNumber;
-                    entity.HaveBathroom = changedRoom.HaveBathroom;
-                    entity.ForPeopleWithDisabilities = changedRoom.ForPeopleWithDisabilities;
-                    entity.Color = changedRoom.Color;
-                    entity.IsLocked = changedRoom.IsLocked;
-                    entity.Shortcut = changedRoom.Shortcut;
-                    entity.Description = changedRoom.Description;
-
-                    //context.Update(entity);
-                    context.SaveChanges();
-                }
-            }
-
-            return Ok();
-        }
-
-        [HttpGet]
-        public object GetRooms(DataSourceLoadOptions loadOptions)
-        {
-            return DataSourceLoader.Load(hotelDbContext.RomRooms
-                .Include(x => x.Ros)
-                .Include(x => x.Loc)
-                , loadOptions);
-        }
-
         [HttpGet]
         public object GetItems(DataSourceLoadOptions loadOptions)
         {
             return DataSourceLoader.Load(TreeViewPlainData.Items, loadOptions);
         }
 
+        [HttpGet]
+        public IActionResult GetRoom(int id)
+        {
+            return Json(roomRepository.GetRoomByID(id));
+        }
+
+        [HttpDelete]
+        public IActionResult DeleteRoom(int key)
+        {
+            roomRepository.DeleteRoom(key);
+            return Ok();
+        }
+
+        [HttpPost]
+        public IActionResult InsertRoom(RomRoom newRoom)
+        {
+            if (!ModelState.IsValid)
+            {
+                var messages = ModelState
+                  .SelectMany(modelState => modelState.Value.Errors)
+                  .Select(err => err.ErrorMessage)
+                  .ToList();
+
+                return BadRequest(messages);
+            }
+
+            roomRepository.InsertRoom(newRoom);
+            return Ok();
+        }
+
+        [HttpPut]
+        public IActionResult SetRoom(RomRoom changedRoom)
+        {
+            if (!ModelState.IsValid)
+            {
+                var messages = ModelState
+                  .SelectMany(modelState => modelState.Value.Errors)
+                  .Select(err => err.ErrorMessage)
+                  .ToList();
+
+                return BadRequest(messages);
+            }
+
+            roomRepository.UpdateRoom(changedRoom);
+            return Ok();
+        }
+
+        [HttpGet]
+        public object GetRooms(DataSourceLoadOptions loadOptions)
+        {
+            return DataSourceLoader.Load(roomRepository.GetRooms(), loadOptions);
+        }
+
+
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
+
     }
 }
