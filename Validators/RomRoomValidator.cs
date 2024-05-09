@@ -7,12 +7,12 @@ namespace s4h.Validators
     {
         public RomRoomValidator() 
         {
-            RuleFor(x => x.Locid).NotNull().GreaterThan((short) 0);
-            RuleFor(x => x.Rosid).NotNull().GreaterThan(0);
-            RuleFor(x => x.Name).NotNull().MinimumLength(1);
-            RuleFor(x => x.FloorNumber).NotNull().GreaterThan((short) 0);
-            RuleFor(x => x.Description).NotNull().MinimumLength(1);
-            RuleFor(x => x.Color).NotNull().MinimumLength(2);
+            RuleFor(x => x.Locid).NotNull().GreaterThan((short) 0).WithMessage("Lokal musi być wybrany!");
+            RuleFor(x => x.Rosid).NotNull().GreaterThan(0).WithMessage("Standard musi być wybrany!");
+            RuleFor(x => x.Name).NotNull().WithMessage("Nazwa wymagana!");
+            RuleFor(x => x.FloorNumber).NotNull().GreaterThan((short) 0).WithMessage("Numer pokoju wymagany!");
+            RuleFor(x => x.Description).NotNull().WithMessage("Opis wymagany!");
+            RuleFor(x => x.Color).NotNull().MinimumLength(2).WithMessage("Kolor wymagany!");
         }
     }
 }

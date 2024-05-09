@@ -43,7 +43,7 @@
                                                     .Widget(w => w
                                                     .Button()
                                                     .Text("Zapisz")
-                                                    .ValidationGroup("roomValidation")
+                                                    //.ValidationGroup("roomValidation")
                                                     .UseSubmitBehavior(true)
                                                     .OnClick("OnSave"))
                                                     .Location(ToolbarItemLocation.After);
@@ -105,14 +105,13 @@
         $.getJSON("@Url.Action("getstandards", "locals")", { localId: localId }, function (result) {
 
             console.log("disabled false");
-            formInstance.itemOption("standard", {
+            formInstance.itemOption("Rosid", {
                 editorOptions: {
                     dataSource: result,
                     disabled: false
                 }
             });
         });
-
     }
 
     function clickMenu() {
@@ -134,45 +133,62 @@
     function OnClosing(e) {    
         $("#editPopup").dxPopup("hide");
         $(".dx-popup-content").empty();
-
+        validated = false;
         editedId = 0;
     }
 
-    function OnSave() {
-        let validation = formInstance.validate();
+    function ResetValidations()
+    {
+        var required = ["Locid", "Rosid", "Name", "FloorNumber", "Description", "Color"];
+        required.forEach((r) => {
+            formInstance.itemOption(r, {
+                validationRules: [{
+                    type: "custom",
+                    validationCallback: () => true,
+                }],
+            });
+        });
+    }
 
-        if (validation.isValid) 
-        {
-            if (editedId == 0) {
-                $.ajax({
-                    url: '@Url.Action("insertroom", "home")',
-                    type: 'POST',
-                    data: edited,
-                    success: function (result) {
-                        OnClosing();
-                        gridInstance.refresh();
-                    },
-                    error: function (request, status, error) {
-                        alert("Wystąpił błąd podczas dodawania pokoju");
-                    }
-                });
-            }
-            else
-            {
-                $.ajax({
-                    url: "@Url.Action("setroom", "home")",
-                    type: 'PUT',
-                    data: edited,
-                    success: function (result) {
-                        OnClosing();
-                        gridInstance.refresh();
-                    },
-                    error: function (request, status, error) {
-                        alert("Wystąpił błąd podczas edycji pokoju");
-                    }
-                });
-            }
+    function OnSave() {
+        //let validation = formInstance.validate();
+        let endpoint = "@Url.Action("insertroom", "home")";
+        let endType = "POST";
+
+        if (editedId > 0) {
+            endpoint = "@Url.Action("setroom", "home")";
+            endType = "PUT";
         }
+
+        ResetValidations();
+  
+        $.ajax({
+            url: endpoint,
+            type: endType,
+            data: edited,
+            success: function (result) {
+                OnClosing();
+                gridInstance.refresh();
+            },
+            error: function (request, status, error) 
+            {
+                let response = JSON.parse(request.responseText);
+
+                response.Errors.forEach((err) => 
+                {
+                    console.log(err.ErrorMessage);
+                    formInstance.itemOption(err.PropertyName, {
+                        validationRules: [{
+                            type: "custom",
+                            validationCallback: () => false,
+                            message: err.ErrorMessage
+                        }],
+                    });
+                });
+
+                DevExpress.validationEngine.validateGroup("roomValidation");
+            }
+        });
     }
 
     function editingStart(e) {
@@ -182,7 +198,7 @@
     
 
     function formPopup(component) {
-        console.log("popup")
+        console.log("editedId" + editedId)
 
         $.getJSON("@Url.Action("getroom", "home")", { id: editedId }, function (room) {
 
@@ -224,16 +240,9 @@
                         }
                     },
                     {
-                        validationRules: [
-                            { 
-                                type: "required" 
-                            },
-                            {
-                                type: "range",
-                                min: "1",
-                                message: "Lokalizacja wymagana",
-                            }
-                        ],
+                        name: "Locid",
+                        Caption: "Locid",
+                        isRequired:true,
                         label: { text: "Lokalizacja" }, dataField: "Locid", editorType: "dxSelectBox",
                         editorOptions: {
                             dataSource: locations,
@@ -243,16 +252,9 @@
                     },
                     {
                         colSpan: 2,
-                        caption: "standard",
-                        name: "standard",
-                        validationRules: [
-                            { type: "required" },
-                            {
-                                type: "range",
-                                min: "1",
-                                message: "Standard wymagany",
-                            }
-                        ],
+                        name: "Rosid",
+                        Caption: "Rosid",
+                        isRequired: true,
                         label: { text: "Standard" }, dataField: "Rosid", editorType: "dxSelectBox",
                         editorOptions: {
                             dataSource: {},
@@ -263,21 +265,17 @@
                     },
                    
                     {
-                        validationRules: [{
-                            type: "required",
-                            message: "Nazwa wymagana",
-                        }],
+                        name: "Name",
+                        isRequired: true,
                         label: { text: "Nazwa" }, dataField: "Name", editorType: "dxTextBox", editorOptions: {}
                     },
                     {
                         label: { text: "Nazwa Skrucona" }, dataField: "Shortcut", editorType: "dxTextBox", editorOptions: {}
                     },
                     {
-                        validationRules: [{
-                            type: "required",
-                            message: "Piętro wymagane",
-                        }],
-                        label: { text: "Piętro" }, dataField: "FloorNumber", editorType: "dxNumberBox", editorOptions: { value: 1 }
+                        name: "FloorNumber",
+                        isRequired: true,
+                        label: { text: "Piętro" }, dataField: "FloorNumber", editorType: "dxNumberBox", editorOptions: {}
                     },
                     {
                         label: { text: "Numer telefonu" }, dataField: "Phone", editorType: "dxTextBox", editorOptions: {}
@@ -300,19 +298,15 @@
                         label: { text: "Zamknięty" }, dataField: "IsLocked", editorType: "dxCheckBox", editorOptions: {}
                     },
                     {
-                        validationRules: [{
-                            type: "required",
-                            message: "Kolor wymagany",
-                        }],
+                        name: "Color",
+                        isRequired: true,
                         label: { text: "Kolor" }, dataField: "Color", editorType: "dxColorBox", editorOptions: {
                         }
                     },
                     {
                         colSpan: 2,
-                        validationRules: [{
-                            type: "required",
-                            message: "Opis wymagany",
-                        }],
+                        name: "Description",
+                        isRequired: true,
                         label: { text: "Opis" }, dataField: "Description", editorType: "dxTextArea", editorOptions: {}
                     }
                 ]

@@ -1,11 +1,16 @@
 using DevExtreme.AspNet.Data;
 using DevExtreme.AspNet.Mvc;
 using DevExtreme.NETCore.Demos.Models.SampleData;
+using FluentValidation;
+using FluentValidation.AspNetCore;
+using FluentValidation.Results;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using s4h.Models;
 using s4h.Repositories;
 using s4h.Services;
+using System;
 using System.Diagnostics;
 
 namespace s4h.Controllers
@@ -14,13 +19,13 @@ namespace s4h.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private IRoomRepository roomRepository;
-        private ILocalsService localsService;
+        private IValidator<RomRoom> roomValidator;
 
-        public HomeController(ILogger<HomeController> logger, IRoomRepository roomRepository, ILocalsService localsService)
+        public HomeController(ILogger<HomeController> logger, IRoomRepository roomRepository, IValidator<RomRoom> roomValidator)
         {
             _logger = logger;
             this.roomRepository = roomRepository;
-            this.localsService = localsService;
+            this.roomValidator = roomValidator;
         }
 
         public IActionResult Index()
@@ -55,15 +60,10 @@ namespace s4h.Controllers
         [HttpPost]
         public IActionResult InsertRoom(RomRoom newRoom)
         {
-            if (!ModelState.IsValid)
-            {
-                var messages = ModelState
-                  .SelectMany(modelState => modelState.Value.Errors)
-                  .Select(err => err.ErrorMessage)
-                  .ToList();
+            ValidationResult result = roomValidator.Validate(newRoom);
 
-                return BadRequest(messages);
-            }
+            if (!result.IsValid)
+                return BadRequest(result);
 
             roomRepository.InsertRoom(newRoom);
             return Ok();
@@ -72,16 +72,11 @@ namespace s4h.Controllers
         [HttpPut]
         public IActionResult SetRoom(RomRoom changedRoom)
         {
-            if (!ModelState.IsValid)
-            {
-                var messages = ModelState
-                  .SelectMany(modelState => modelState.Value.Errors)
-                  .Select(err => err.ErrorMessage)
-                  .ToList();
+            ValidationResult result = roomValidator.Validate(changedRoom);
 
-                return BadRequest(messages);
-            }
-
+            if (!result.IsValid)
+                return BadRequest(result);
+ 
             roomRepository.UpdateRoom(changedRoom);
             return Ok();
         }
